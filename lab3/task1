@@ -1,0 +1,16 @@
+#!/bin/bash
+
+test_dir_path=~/test
+test_file=$test_dir_path\/$(date +"%F_%R")
+report=~/report
+CATALOG_SUCCESS="catalog test was created successfully"
+
+ping_host="www.net_nikogo.ru"
+PING_ERR="ping failed"
+
+# program
+
+echo Creating $test_dir_path
+mkdir $test_dir_path && { echo $CATALOG_SUCCESS; echo $CATALOG_SUCCESS > $report; touch $test_file; } || ping -q -w 1 "google.ru" | grep "rtt" && echo $(date +"%F_%R")" "$PING_ERR"\n" > $report
+
+

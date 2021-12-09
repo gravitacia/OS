@@ -1,0 +1,45 @@
+#!/bin/bash
+
+num=1
+mode="+"
+
+(tail -f pipe) | 
+while true;
+do
+	read LINE;
+	case $LINE in
+		"+")
+			mode="+"
+			echo "Addition mode"
+			;;
+		"x")
+			mode="x"
+			echo "Multiplying mode"
+			;;
+		"QUIT")
+			echo "exit"
+			killall tail
+
+			exit 0
+			;;
+		[0-9]*)
+			case $mode in
+				"+")
+					echo "Adding" $num "and " $LINE
+					num=$(( $num+$LINE ))
+					echo "And getting " $num
+					;;
+				"x")
+					echo "Multiplying" $num "and " $LINE
+					num=$(( $num*$LINE ))
+					echo "And getting " $num
+					;;
+			esac
+			;;
+		*)
+			echo "Incorrect input"
+			killall tail
+			exit 1
+			;;
+		esac
+done

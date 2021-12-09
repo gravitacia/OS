@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# 5 minute / every hour / every day / every month / only on Thursdays we will start task1 script
+
+echo "5 * * * 4 task1" | crontab
+

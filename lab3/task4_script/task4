@@ -1,0 +1,35 @@
+#!/bin/bash
+
+nice -n 7 ./task4_scr &
+proc1_pid=$!
+echo Proc1 PID: $proc1_pid
+./task4_scr &
+proc2_pid=$!
+echo Proc2 PID: $proc2_pid
+./task4_scr &
+proc3_pid=$!
+echo Proc3 PID: $proc3_pid
+
+sleep 3
+
+function usage_first {
+echo "CPU usage of 1st proc: "$(ps -p $proc1_pid -o %cpu | tail -n 1)
+}
+
+usage_first
+
+kill $proc3_pid
+echo "Process 3 has been killed!"
+
+renice -n 10 $proc1_pid
+
+sleep 3
+
+usage_first
+
+sleep 3
+
+kill $proc1_pid
+kill $proc2_pid 
+
+echo "Processes 1 and 2 has been killed!"
