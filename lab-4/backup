@@ -1,0 +1,59 @@
+#!/bin/bash
+
+# let's get our path
+copyingDir=$1
+backName=""
+
+# working with dates: let's take today date and try to find a fresh backup
+dateNow=$(date +%Y-%m-%d)
+
+cd ~/user
+dateFresh="$(ls | grep -E "^Backup-" | sort -n | tail -1 | cut -d "-" -f 2,3,4)"
+
+if [[ $dateFresh != "" ]] ; then
+	secondsFresh=$(date -d $dateFresh +%s)
+else
+	secondsFresh=0
+fi
+
+secondsNow=$(date -d $dateNow +%s)
+
+secondsDifference=$(echo "($secondsNow - $secondsFresh) / 86400" | bc)
+
+# if it wasn't found - creating new dir, else - using existing dir
+
+if [[ $secondsDifference -gt 7 ]] ; then
+	backName="Backup-$dateNow"
+	echo "Backup $backName into dir ~/user/$backName" >> ~/user/backup-report
+	mkdir $backName
+	cd $copyingDir
+	listInCopyingDir=$(ls -1)
+	for file in $listInCopyingDir; do
+		cp -v $file ~/user/$backName/$file >> ~/user/backup-report
+	done
+else
+	backName="Backup-$dateFresh"
+	echo "Backup into existing dir ~/user/$backName" >> ~/user/backup-report
+	cd $copyingDir
+	listInCopyingDir="$(ls -1)"
+	for file in $listInCopyingDir; do
+		checkname $file
+		if [[ -f $file ]] ; then
+			if [[ -e ~/user/$backName/$file ]] ; then
+				if [[ $(stat -c %s $file) -eq $(stat -c %s ~/user/$backName/$file) ]] ; then
+					continue
+				else
+					cd ~/user/$backName
+					mv $file $file-$dateNow
+					cd $copyingDir
+					cp -v $file ~/user/$backName/$file >> ~/user/backup-report
+					echo "renamed $file into $file-$dateNow" >> ~/user/backup-report
+				fi
+			else
+				cp -v $file ~/user/$backName/$file >> ~/user/backup-report
+			fi
+		else
+			cp -R $file ~/user/$backName
+		fi
+	done
+fi

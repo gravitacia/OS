@@ -1,0 +1,36 @@
+#!/bin/bash
+
+trash_path=~/.trash # trash folder location
+filename=$1 # getting filename from params
+
+# is file exists
+if [[ ! -f "$filename" ]] ; then
+	echo "File opening error: \"$1\" is not a file!"
+	exit 1
+else
+	echo "File opened successful!"
+fi
+
+# if ~/.trash doesn't exists - create dir
+if [[ ! -d "$trash_path" ]] ; then
+	mkdir "$trash_path"
+	echo "Directory wasn't exist, created $trash_path"
+else
+	echo "Directory is already exists, working.."
+fi
+
+# create hard link
+random_linkname="$filename""_"$(date +"%Y-%m-%d-%H:%M:%S")
+ln -- "$filename" "$trash_path/$random_linkname"
+echo "Link with name "$random_linkname" has been created!"
+
+# delete cur file
+rm -rf -- "$filename"
+
+# if deleted - let's tell that its successful
+if [[ ! -f "$filename" ]] ; then
+	echo "File deleted successful!"
+fi
+
+echo ""$filename" : $PWD : $trash_path/$random_linkname" >> ~/.trash.log
+echo "Old filepath and linkpath is logged!"

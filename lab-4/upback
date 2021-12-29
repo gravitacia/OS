@@ -1,0 +1,20 @@
+#!/bin/bash
+
+cd ~/user
+dateFiles="$(ls | grep -E "^Backup-" | sort -n | tail -1 | cut -d "-" -f 2,3,4)"
+
+if [[ -e restore ]] ; then
+	rm -rf restore
+fi
+
+mkdir restore
+
+cd "Backup-$dateFiles"
+echo $PWD
+
+for file in $(ls -1); do
+	tempFileMatch=$(echo $file | grep -P "^.*-\d{4}-\d{2}-\d{2}$" -o || echo 0)
+	if [[ $tempFileMatch == 0 ]] ; then
+		cp -v $file ~/user/restore/$file
+	fi
+done
